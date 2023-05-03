@@ -1,0 +1,195 @@
+---
+title: '496'
+author: "YuWang"
+date: "4/24/2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tibble)
+library(readr)
+library(ggplot2)
+library(keras)
+library(tensorflow)
+```
+
+```{r}
+raw_sales <- read.csv("~/Desktop/496/raw_sales.csv")
+#raw_sales <- raw_sales[-c(2),]
+raw_sales$datesold <- gsub(" 00:00:00", "", raw_sales$datesold)
+head(raw_sales)
+
+```
+```{r}
+# Preprocess the data
+# You would need to replace this code with your own preprocessing steps
+library(dplyr)
+library(tidyr)
+library(keras)
+
+# One-hot-encode the property type variable
+sales <- raw_sales %>%
+  mutate(propertyType = factor(propertyType)) %>%
+  mutate_all(as.character) %>%
+  select(-datesold) %>%
+  mutate_all(as.factor) %>%
+  mutate_all(as.numeric)
+```
+
+```{r}
+# Split the data into training and test sets
+set.seed(123)
+train_idx <- sample(nrow(sales), nrow(sales) * 0.8)
+x_train <- sales[train_idx, ]
+x_test <- sales[-train_idx, ]
+y <-sales$price
+y_train <-y[train_idx]
+y_test <- y[-train_idx ]
+# # Pad the sequences to have a fixed length
+# max_len <- 10
+# x_train <- pad_sequences(x_train, maxlen = max_len)
+# x_test <- pad_sequences(x_test, maxlen = max_len)
+
+```
+
+```{r}
+# Build the RNN model
+# model <- keras_model_sequential() %>%
+#   layer_embedding(input_dim = ncol(x_train),
+#                   output_dim = 32) %>%
+#   layer_lstm(units = 32) %>%
+#   layer_dense(units = 1, activation = "sigmoid")
+# 
+# # Compile the model
+# model %>% compile(
+#   optimizer = "adam",
+#   loss = "binary_crossentropy",
+#   metrics = c("accuracy")
+# )
+# 
+# # Train the model
+# history <- model %>% fit(
+#   x_train, y_train,
+#   epochs = 10,
+#   batch_size = 32,
+#   validation_split = 0.2
+# )
+# 
+# # Evaluate the model on the test data
+# scores <- model %>% evaluate(x_test, y_test,
+#                              verbose = 0)
+# print(paste("Test accuracy:", scores[[2]]))
+
+```
+
+
+
+
+```{r}
+library(dplyr)
+
+library(dplyr)
+library(lubridate)
+
+# assuming the data is stored in a data frame called 'df'
+# df_filtered <- df %>%
+#   mutate(year = year(datesold)) %>%
+#   filter(year >= 2007 & year <= 2022) %>%
+#   select(-year) # remove the 'year' column
+
+# the above code adds a new column called 'year', filters the data based on the year, and then removes the 'year' column
+
+```
+```{r}
+sum(duplicated(raw_sales))
+```
+
+```{r}
+sum(is.na(raw_sales))
+```
+
+```{r}
+summary(raw_sales)
+```
+
+```{r}
+library(faraway)
+
+```
+
+
+
+
+```{r}
+library(ggplot2)
+library(faraway)
+ggplot(raw_sales, aes(x = 1:nrow(raw_sales), y = price)) + geom_line()
+
+ggplot(raw_sales[1:1000, ], aes(x = 1:1000, y =  price)) + geom_line()
+```
+
+
+```{r}
+ggplot(subset(raw_sales, bedrooms == 4), aes(x = 1:nrow(subset(raw_sales, bedrooms == 4)), y = price)) + 
+  geom_point() + 
+  labs(title = "Prices of Properties with Four Bedroom Over Time",x='time index')
+
+```
+
+
+
+```{r}
+ggplot(subset(raw_sales, bedrooms == 4), aes(x = datesold, y = price)) + 
+  geom_point() + 
+  labs(title = "Prices of 4-Bedroom Properties Over Time", x = "Year") 
+  #scale_x_continuous(limits = as.Date(c("2008", "2020")))
+
+```
+
+```{r}
+# ggplot(raw_sales, aes(x = 1:nrow(raw_sales), y = price)) + 
+#   geom_point() + 
+#   labs(title = "Raw Sales Data - Scatter Plot") +
+#   theme(plot.width = unit(10, "in"))
+
+ggplot(raw_sales, aes(x = 1:nrow(raw_sales), y = price)) + 
+  geom_point() + 
+  labs(title = "Raw Sales Data - Scatter Plot")
+
+
+ggplot(raw_sales[1:1000, ], aes(x = 1:1000, y = price)) + 
+  geom_point() + 
+  labs(title = "Raw Sales Data (First 1000 subjects) - Scatter Plot")
+
+```
+
+```{r}
+par(mfrow=c(1,2))
+hist(raw_sales$price, xlab='price')
+hist(raw_sales$bedrooms, xlab='price')
+```
+
+```{r}
+par(mfrow=c(1,2))
+hist(raw_sales$postcode, xlab='postcode')
+
+```
+
+```{r}
+data <- data.matrix(raw_sales[, -1])
+mean <- apply(data, 2, mean)
+std <- apply(data, 2, sd)
+data <- scale(data, center = mean, scale = std)
+normalize <- function(x) {
+  return ((x - min(x)) / (max(x) - min(x)))
+}
+max <- apply(data,2,max)
+min <- apply(data,2,min)
+data <- apply(data, 2, normalize)
+plot(data[1:3000,2 ])
+plot(data[3000:5000,2 ])
+```
